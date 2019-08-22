@@ -3,6 +3,6 @@
 
 #include "rec_defs.h"
 
-metric_t get_rec_metrics(double, double*, int );
+metric_t get_rec_metrics(double, double *, int);
 
 #endif
