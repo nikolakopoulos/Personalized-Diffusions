@@ -7,7 +7,7 @@
 #define PRINT_THETAS false
 
 // PerDIF version
-#define PERDIF_VERSION "1.0alpha"
+#define PERDIF_VERSION "1.0"
 
 // Input buffer sizes
 
@@ -20,9 +20,9 @@
 
 #define DEFAULT_DATASET "ml1m"
 
-#define DEFAULT_IN_DIR "../data/in/"
+#define DEFAULT_IN_DIR "./data/in/"
 
-#define DEFAULT_OUT_DIR "../data/out/"
+#define DEFAULT_OUT_DIR "./data/out/"
 
 #define DEFAULT_RATING_MAT DEFAULT_IN_DIR DEFAULT_DATASET "/R.csr"
 
