@@ -48,13 +48,14 @@
 
 #define DEFAULT_DIF_PARAM 1 // single best
 
-#define DEFAULT_BIPARTITE true
+#define DEFAULT_BIPARTITE false
 
 #define DEFAULT_BEST_STEP 0
 
 #define DEFAULT_SET_TREND false
 
-#define DEFAULT_LAMBDA 1.0
+// #define DEFAULT_LAMBDA 1.0
+#define DEFAULT_LAMBDA 0.0
 
 #define DEFAULT_ITM_TRSP true
 
