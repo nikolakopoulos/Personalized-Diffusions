@@ -161,9 +161,8 @@ void perdif_train(data_t data, out_t out, ctrl_t ctrl, output_t outfiles) {
   csr_array_free(graphs, data.num_models);
 }
 
-void compute_mus(
-    d_mat_t *mus, d_mat_t *thetas,
-    int num_models) { //  solve the reccurence that computes the mus
+void compute_mus(d_mat_t *mus, d_mat_t *thetas, int num_models) {
+  //  solve the reccurence that computes the mus
   for (sz_long_t k = 0; k < num_models; k++) {
     mus[k].num_cols = thetas[k].num_cols - 1;
     mus[k].num_rows = thetas[k].num_rows;

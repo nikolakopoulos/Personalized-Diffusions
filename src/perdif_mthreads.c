@@ -52,7 +52,6 @@ void distribute_to_threads(csr_graph_t *graphs, data_t data, out_t out,
       (csr_graph_t **)malloc(usr_win * sizeof(csr_graph_t *));
   for (int i = 0; i < data.num_models; i++)
     graph_copies[i] = &graphs[i];
-  // graph_copies[i] = csr_mult_deep_copy(graphs[i], ctrl.usr_threads);
 
   // Prepare thread parameters
   struct pass2thread_t param_1[ctrl.usr_threads][model_threads];

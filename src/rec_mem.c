@@ -170,11 +170,27 @@ data_t data_init(void) {
   return data;
 }
 
+// Initialize and allocate buffers for input data
+data_t datacv_init(void) {
+
+  data_t data;
+
+  data = (data_t){
+               .no_models = false,
+               .cv_neg = i_mat_init(ITM_BUFF_SIZE, USR_BUFF_SIZE),
+               .cv_pos = (sz_long_t *)malloc(USR_BUFF_SIZE * sizeof(sz_long_t)),
+               .test_neg = NULL,
+               .test_pos = NULL};
+
+  return data;
+}
+
 // free input data
 void data_free(data_t data) {
   csr_array_free(data.item_models, data.num_models);
   usr_free(data.users, data.num_users);
-  usr_free(data.users_full, data.num_users);
+  if (data.users_full != NULL)
+    usr_free(data.users_full, data.num_users);
   free(data.cv_pos);
   i_mat_free(data.cv_neg);
 }

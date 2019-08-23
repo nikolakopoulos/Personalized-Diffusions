@@ -37,4 +37,6 @@ void free_local_trend(metric_t ***, int, int);
 
 data_t data_init(void);
 
+data_t datacv_init(void);
+
 #endif

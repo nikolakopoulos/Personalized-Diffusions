@@ -77,6 +77,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
                          .input.rating_mat = DEFAULT_RATING_MAT,
                          .input.rating_mat_full = DEFAULT_RATING_MAT_FULL,
                          .input.item_models_dir = DEFAULT_ITEM_MODELS_DIR,
+                         .input.CV_item_models_dir = DEFAULT_CV_ITEM_MODELS_DIR,
                          .ctrl.usr_threads = DEFAULT_USR_THREADS,
                          .ctrl.model_threads = DEFAULT_MODEL_THREADS,
                          .ctrl.num_threads = DEFAULT_NUM_THREADS,
@@ -197,7 +198,9 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       args->input.rating_mat_full =
           concat_thanos(3, DEFAULT_IN_DIR, optarg, "/R_full.csr");
       args->input.item_models_dir =
-          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/item_models");
+          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/selected_item_models");
+      args->input.CV_item_models_dir =
+          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/CV_item_models");
       // Val
       args->input.val_mat = concat_thanos(3, DEFAULT_IN_DIR, optarg, "/CV.csr");
       // Test
@@ -276,6 +279,55 @@ data_t load_data(input_t input, ctrl_t *ctrl) {
     printf("ERROR: Test and validation matrix dimension mismatch!\n");
     colorreset();
   }
+
+  if (data.num_models == 0) {
+    usr_free(data.users, data.num_users);
+    data.no_models = true;
+  }
+
+  return data;
+}
+
+
+// Load data from input files
+data_t load_CV_data(input_t input, ctrl_t *ctrl) {
+
+  data_t data = datacv_init();
+
+  // Read rating matrices
+  //
+  blue();
+  printf("Loading Data...");
+  colorreset();
+  printf("\nImplicit Feedback Matrix (training)...");
+  data.users = read_rating_matrix_csr(&data.num_users, input.rating_mat);
+  printf("Done!\n");
+
+  // Read item graphs from file
+  printf("Item model(s)...");
+  data.num_models = DEFAULT_NUM_MODELS;
+  data.item_models = read_item_models(input.CV_item_models_dir, &data.num_models);
+  printf("%d item model(s) found...", data.num_models);
+  printf("Done!\n");
+  if (VERBOSE)
+    printf("%d users.. \n", (int)data.num_users);
+  // Automatically adjust model/user threads if only total num_threads is given
+  // Requires knowledge of number of models
+  if (ctrl->num_threads) {
+    if (ctrl->num_threads <= data.num_models) {
+      ctrl->usr_threads = 1;
+      ctrl->model_threads = ctrl->num_threads;
+    } else {
+      ctrl->model_threads = data.num_models;
+      ctrl->usr_threads = (ctrl->num_threads / data.num_models);
+    }
+  }
+
+  // Read cross validation and test items
+  printf("Validation-Set...");
+  fflush(stdout);
+  load_v(input.val_mat, &data.cv_pos, &data.cv_neg);
+  printf("Done!\n");
 
   if (data.num_models == 0) {
     usr_free(data.users, data.num_users);

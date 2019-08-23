@@ -372,10 +372,8 @@ double *ppr_coefficients(int max_walk) {
       col_sum[j] += coef[i * grid_points + j];
     }
   }
-  // printf("\nCoef test: %lf , %lf, %lf,
-  // %lf\n",coef[0+3],coef[1*grid_points+3],coef[2*grid_points+3],coef[3*grid_points+3]);exit(0);
-  // Normalize coefficients so tha they sum to 1 (preserves random-walk
-  // interpretability)
+
+  // Normalize coefficients so tha they sum to 1
   for (int i = 0; i < max_walk; i++) {
     for (int j = 0; j < grid_points; j++)
       coef[i * grid_points + j] /= col_sum[j];
@@ -409,10 +407,7 @@ double *hk_coefficients(int max_walk) {
       col_sum[j] += coef[i * grid_points + j];
     }
   }
-  // printf("\nCoef test: %lf , %lf, %lf,
-  // %lf\n",coef[0+5],coef[1*grid_points+5],coef[2*grid_points+5],coef[3*grid_points+5]);exit(0);
-  // Normalize coefficients so that they sum to 1 (preserves random-walk
-  // interpretability)
+  // Normalize coefficients so that they sum to 1
   for (int i = 0; i < max_walk; i++) {
     for (int j = 0; j < grid_points; j++)
       coef[i * grid_points + j] /= col_sum[j];

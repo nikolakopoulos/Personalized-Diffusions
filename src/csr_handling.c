@@ -2,7 +2,6 @@
 
 /*
  Contains routines for handling compressed-sparse-row (CSR) graphs
- ( allocating , copying, normalizing, scaling, mat-vec, mat-mat, freeing )
 
  Code by: Dimitris Berberidis and Athanasios N. Nikolakopoulos
  University of Minnesota 2019
@@ -102,26 +101,6 @@ csr_graph_t csr_deep_copy(csr_graph_t graph) {
   return graph_temp;
 }
 
-// Return an array with multiple copies of the input graph
-csr_graph_t *csr_mult_deep_copy(csr_graph_t graph, sz_short_t num_copies) {
-  csr_graph_t *graph_array =
-      (csr_graph_t *)malloc(num_copies * sizeof(csr_graph_t));
-  for (sz_short_t i = 0; i < num_copies; i++) {
-    graph_array[i] = csr_deep_copy(graph);
-  }
-  return graph_array;
-}
-
-// Subroutine: modify csr_value to be column stochastic
-// First find degrees by summing element of each row
-// Then go through values and divide by corresponding degree
-// WARNING: Only works for BINARY and SYMMETRIC graph
-void make_BCSR_col_stoch(csr_graph_t *graph) {
-  for (sz_long_t i = 0; i < graph->nnz; i++) {
-    graph->csr_value[i] =
-        graph->csr_value[i] / (long double)graph->degrees[graph->csr_column[i]];
-  }
-}
 
 // Subroutine: take x, multiply with csr matrix from right and store result in y
 void my_CSR_matvec(double *y, double *x, csr_graph_t graph) {
@@ -137,25 +116,6 @@ void my_CSR_matvec(double *y, double *x, csr_graph_t graph) {
   }
 }
 
-// Subroutine: take X, multiply with csr matrix from right and store result in Y
-void my_CSR_matmat(double *Y, double *X, csr_graph_t graph, sz_med_t M,
-                   sz_med_t from, sz_med_t to) {
-
-  for (sz_long_t i = 0; i < graph.num_nodes; i++) {
-    for (sz_long_t j = from; j < to; j++) {
-      Y[i * M + j] = 0.0f;
-    }
-  }
-
-  for (sz_long_t i = 0; i < graph.num_nodes; i++) {
-    for (sz_long_t j = graph.csr_row_pointer[i];
-         j < graph.csr_row_pointer[i + 1]; j++) {
-      for (sz_med_t k = from; k < to; k++) {
-        Y[i * M + k] += X[M * graph.csr_column[j] + k] * graph.csr_value[j];
-      }
-    }
-  }
-}
 
 // Transpose csr matrix
 csr_graph_t csr_transpose(csr_graph_t graph) {

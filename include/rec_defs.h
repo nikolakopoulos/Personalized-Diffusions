@@ -28,7 +28,9 @@
 
 #define DEFAULT_RATING_MAT_FULL DEFAULT_IN_DIR DEFAULT_DATASET "/R_full.csr"
 
-#define DEFAULT_ITEM_MODELS_DIR DEFAULT_IN_DIR DEFAULT_DATASET "/item_models"
+#define DEFAULT_ITEM_MODELS_DIR DEFAULT_IN_DIR DEFAULT_DATASET "/selected_item_models"
+
+#define DEFAULT_CV_ITEM_MODELS_DIR DEFAULT_IN_DIR DEFAULT_DATASET "/CV_item_models"
 
 #define DEFAULT_NUM_MODELS 1
 
@@ -148,6 +150,7 @@ typedef struct {
   char *rating_mat;
   char *rating_mat_full;
   char *item_models_dir;
+  char *CV_item_models_dir;
   char *val_mat;
   char *test_mat;
 } input_t;
