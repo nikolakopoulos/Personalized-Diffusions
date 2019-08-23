@@ -1,3 +1,7 @@
 # Personalized-Diffusions
+git clone https://github.com/nikolakopoulos/Personalized-Diffusions.git 
 
-(coming soon)
+
+To install
+
+make
