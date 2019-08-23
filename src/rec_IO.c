@@ -19,6 +19,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <omp.h>
 
 #include "csr_handling.h"
 #include "rec_IO.h"
@@ -78,7 +79,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
                          .input.rating_mat_full = DEFAULT_RATING_MAT_FULL,
                          .input.item_models_dir = DEFAULT_ITEM_MODELS_DIR,
                          .input.CV_item_models_dir = DEFAULT_CV_ITEM_MODELS_DIR,
-                         .ctrl.usr_threads = DEFAULT_USR_THREADS,
+                         .ctrl.usr_threads = omp_get_max_threads(),
                          .ctrl.model_threads = DEFAULT_MODEL_THREADS,
                          .ctrl.num_threads = DEFAULT_NUM_THREADS,
                          .output.outdir_pred = DEFAULT_OUTDIR_PRED,
@@ -86,11 +87,9 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
                          .output.outdir_val = DEFAULT_OUTDIR_VAL,
                          .ctrl.which_dif_param = DEFAULT_DIF_PARAM,
                          .ctrl.bipartite = DEFAULT_BIPARTITE,
-                         .ctrl.lambda = DEFAULT_LAMBDA,
                          .ctrl.rmse_fit = DEFAULT_RMSE_FIT,
                          .ctrl.itm_trsp = DEFAULT_ITM_TRSP,
                          .ctrl.save_vals = DEFAULT_SAVE_VALS,
-                         .ctrl.set_trend = DEFAULT_SET_TREND,
                          .ctrl.best_step = DEFAULT_BEST_STEP,
                          .input.val_mat = DEFAULT_VAL_MAT,
                          .input.test_mat = DEFAULT_TEST_MAT,
@@ -103,16 +102,57 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       {"max_walk", required_argument, 0, 'd'},
       {"usr_threads", required_argument, 0, 'e'},
       {"parametrize_as", required_argument, 0, 'j'},
-      {"item_model_only", no_argument, 0, 'k'},
       {"bpr_fit", no_argument, 0, 'm'},
-      {"lambda", required_argument, 0, 'n'},
       {"target_metric", required_argument, 0, 'o'},
       {"itm_trsp", no_argument, 0, 'y'},
       {"save_vals", no_argument, 0, 'x'},
       {"num_threads", required_argument, 0, 'l'},
-      {"set_trend", required_argument, 0, 'p'},
       {"dataset", required_argument, 0, 'q'},
+      {"help", no_argument, 0, 'h'},
       {0, 0, 0, 0}};
+
+  static char helpstr[][512] = {
+      " ",
+      " Usage:",
+      "   PERDIF [options]",
+      " ",
+      " Options:",
+      " ",
+      "   -dataset=string",
+      "      Specifies the dataset to be used.",
+      "        The dataset name is assumed to correspond to the name of the "
+      "dataset folder in data/in and data/out directories.",
+      "        The default value is ml1m",
+      " ",
+      "   -max_walk=int",
+      "      Specifies that length of the personalized item exploration walks.",
+      "      The default value is 5",
+      " ",
+      "   -parametrize_as=string",
+      "      Available options are:",
+      "        k-simplex    -  The PerDIF^Free model [default].",
+      "        dictionary   -  The PerDIF^Par model.",
+      "        single-best  -  Chooses for each user the Kth step that "
+      "minimizes train error.",
+      "        hk           -  PerDIF^par using only Heat Kernel weights.",
+      "        ppr          -  PerDIF^par using only Personalized PageRank "
+      "weights.",
+      " ",
+	  "   -bpr_fit",
+      "      It fits the personalized diffusions using a BRP loss. Default is RMSE",
+      " ",
+      "   -usr_threads=int",
+      "      Specifies the number of threads to be used for learning and "
+      "evaluating the model.",
+      "      The default value is maximum number of threads available on the "
+      "machine.",
+      " ",
+      "   -help",
+      "      Prints this message.",
+      " ",
+	  " Example run: ./PERDIF -dataset=ml1m -usr_threads=40 -max_walk=6 -parametrize_as=dictionary",
+	  " ",
+      ""};
 
   int long_index = 0;
   bool method_found = false, metric_found = false;
@@ -148,9 +188,6 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
         exit(EXIT_FAILURE);
       }
       break;
-    case 'k':
-      args->ctrl.bipartite = false;
-      break;
     case 'y':
       args->ctrl.itm_trsp = false;
       break;
@@ -159,13 +196,6 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       break;
     case 'x':
       args->ctrl.save_vals = true;
-      break;
-    case 'n':
-      args->ctrl.lambda = atof(optarg);
-      if (args->ctrl.lambda < 0.0) {
-        printf("ERROR: Lambda parameter must be >=0.0\n");
-        exit(EXIT_FAILURE);
-      }
       break;
     case 'o':
       for (sz_short_t i = 0; i < NUM_METRICS; i++) {
@@ -180,14 +210,6 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       args->ctrl.num_threads = atoi(optarg);
       if (args->ctrl.num_threads < 1) {
         printf("ERROR: Number of threads must be >=1\n");
-        exit(EXIT_FAILURE);
-      }
-      break;
-    case 'p':
-      args->ctrl.set_trend = true;
-      args->ctrl.best_step = atoi(optarg);
-      if (args->ctrl.model_threads < 0) {
-        printf("ERROR: Best step must be >=0\n");
         exit(EXIT_FAILURE);
       }
       break;
@@ -214,6 +236,11 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       args->output.outdir_val =
           concat_thanos(3, DEFAULT_OUT_DIR, optarg, "/val_workspace");
       break;
+    case 'h':
+      for (int i = 0; strlen(helpstr[i]) > 0; i++)
+        printf("%s\n", helpstr[i]);
+      exit(0);
+    default:
       exit(EXIT_FAILURE);
     }
   }
@@ -288,7 +315,6 @@ data_t load_data(input_t input, ctrl_t *ctrl) {
   return data;
 }
 
-
 // Load data from input files
 data_t load_CV_data(input_t input, ctrl_t *ctrl) {
 
@@ -306,7 +332,8 @@ data_t load_CV_data(input_t input, ctrl_t *ctrl) {
   // Read item graphs from file
   printf("Item model(s)...");
   data.num_models = DEFAULT_NUM_MODELS;
-  data.item_models = read_item_models(input.CV_item_models_dir, &data.num_models);
+  data.item_models =
+      read_item_models(input.CV_item_models_dir, &data.num_models);
   printf("%d item model(s) found...", data.num_models);
   printf("Done!\n");
   if (VERBOSE)
@@ -608,8 +635,7 @@ static void reverse(char *s) {
 
 // Store the general trends for different models
 void store_general_trends(metric_t **general_trends, char *outdir,
-                          int num_models, int max_walk, bool set_trend,
-                          const char **names) {
+                          int num_models, int max_walk, const char **names) {
 
   if (VERBOSE) {
     printf("\nSaving general trends.. \n\n");
@@ -632,9 +658,6 @@ void store_general_trends(metric_t **general_trends, char *outdir,
       fprintf(file, "%0.4f\t%0.4f\t%0.4f\n", general_trends[i][k].HR,
               general_trends[i][k].ARHR, general_trends[i][k].NDCG);
 
-    if (set_trend)
-      fprintf(file, "WARNING: Above results were manually set using "
-                    "--set_trend option\n");
     fclose(file);
 
     if (VERBOSE)

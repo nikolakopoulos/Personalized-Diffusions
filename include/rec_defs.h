@@ -54,8 +54,6 @@
 
 #define DEFAULT_BEST_STEP 0
 
-#define DEFAULT_SET_TREND false
-
 // #define DEFAULT_LAMBDA 1.0
 #define DEFAULT_LAMBDA 0.0
 

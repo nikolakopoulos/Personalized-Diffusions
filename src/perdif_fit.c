@@ -45,8 +45,7 @@ static double frob_norm(double *, sz_med_t);
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-void k_simplex(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
-               double *dummy, bool rmse) {
+void k_simplex(double *theta, d_mat_t P, int max_walk, double *dummy, bool rmse) {
 
   if (!rmse) {
     // adjust for BPR  metric
@@ -64,15 +63,13 @@ void k_simplex(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
   // first the Hessian matrix
   double A[max_walk * max_walk];
   grammian_matrix(A, P_unfold, (int)P.num_rows, (int)P.num_cols);
-  for (int i = 0; i < max_walk; i++)
-    A[i * max_walk + i] += lambda + L2_REG_LAMBDA;
 
   // then the linear part
   double b[max_walk];
 
   if (rmse) {
     for (int i = 0; i < max_walk; i++)
-      b[i] = -2.0 * (P_unfold[i] + lambda * g[i]);
+      b[i] = -2.0 * (P_unfold[i]);
   } else {
     for (int i = 0; i < max_walk; i++) {
       b[i] = 0.0;
@@ -80,7 +77,6 @@ void k_simplex(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
         b[i] += P.val[i][j];
       }
       b[i] *= -2.0;
-      b[i] += -2.0 * lambda * g[i];
     }
   }
 
@@ -93,8 +89,7 @@ void k_simplex(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
 // Simple search returns the single best step ( i.e. theta = [0 0 0 1 0 0 .... 0
 // 0 ] )
 
-void single_best(double *theta, d_mat_t P, double *g, int max_walk,
-                 double lambda, double *dummy, bool rmse) {
+void single_best(double *theta, d_mat_t P, int max_walk, double *dummy, bool rmse) {
 
   if (!rmse) {
     // adjust for BPR  metric
@@ -111,9 +106,8 @@ void single_best(double *theta, d_mat_t P, double *g, int max_walk,
 
   // Compute loss of each k-step and find smallest
   int best_k = 0;
-  double min_loss = 1.0e5 * lambda;
+  double min_loss = 1.0e5;
   for (int k = 0; k < max_walk; k++) {
-    loss[k] = lambda * pow(g[k] - 1.0, 2); // first the regularizer
     loss[k] += pow(1.0 - P.val[0][k], 2);
     if (rmse) {
       for (int j = 1; j < P.num_rows; j++)
@@ -131,8 +125,7 @@ void single_best(double *theta, d_mat_t P, double *g, int max_walk,
   theta[best_k] = 1.0;
 }
 
-void ppr_grid(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
-              double *ppr_c, bool rmse) {
+void ppr_grid(double *theta, d_mat_t P, int max_walk, double *ppr_c, bool rmse) {
 
   if (!rmse) {
     // adjust for BPR  metric
@@ -152,13 +145,10 @@ void ppr_grid(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
   // find the best one
   double loss[GRID_POINTS];
   int best_point = 0;
-  double min_loss = 1.0e5 * lambda;
+  double min_loss = 1.0e5;
   for (int i = 0; i < GRID_POINTS; i++) {
     // first the regularizer
     loss[i] = 0.0;
-    for (int k = 0; k < max_walk; k++)
-      loss[i] += lambda * pow(g[k] - ppr_c[k * GRID_POINTS + i], 2);
-
     // then the ratings
     if (rmse) {
       loss[i] += pow(1.0 - C[i], 2);
@@ -184,8 +174,7 @@ void ppr_grid(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
   free(C);
 }
 
-void hk_grid(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
-             double *hk_c, bool rmse) {
+void hk_grid(double *theta, d_mat_t P, int max_walk, double *hk_c, bool rmse) {
 
   if (!rmse) {
     // adjust for BPR  metric
@@ -204,12 +193,10 @@ void hk_grid(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
   // find the best one
   double loss[GRID_POINTS];
   int best_point = 0;
-  double min_loss = 1.0e5 * lambda;
+  double min_loss = 1.0e5;
   for (int i = 0; i < GRID_POINTS; i++) {
     // first the regularizer
     loss[i] = 0.0;
-    for (int k = 0; k < max_walk; k++)
-      loss[i] += lambda * pow(g[k] - hk_c[k * GRID_POINTS + i], 2);
 
     // then the ratings
     if (rmse) {
@@ -236,8 +223,7 @@ void hk_grid(double *theta, d_mat_t P, double *g, int max_walk, double lambda,
   free(C);
 }
 
-void dictionary_single(double *theta, d_mat_t P, double *g, int max_walk,
-                       double lambda, double *dict, bool rmse) {
+void dictionary_single(double *theta, d_mat_t P, int max_walk, double *dict, bool rmse) {
 
   if (!rmse) {
     // adjust for BPR  metric
@@ -258,16 +244,10 @@ void dictionary_single(double *theta, d_mat_t P, double *g, int max_walk,
   grammian_matrix(DD, dict, max_walk, GRID_POINTS);
   double A[GRID_POINTS * GRID_POINTS];
   grammian_matrix(A, PD, (int)P.num_rows, GRID_POINTS);
-  for (int i = 0; i < GRID_POINTS * GRID_POINTS; i++)
-    A[i] += lambda * DD[i];
 
   double g_D[GRID_POINTS];
   for (int i = 0; i < GRID_POINTS; i++) {
     g_D[i] = 0.0;
-    for (int k = 0; k < max_walk; k++) {
-      g_D[i] += g[k] * dict[k * GRID_POINTS + i];
-    }
-    g_D[i] *= -2.0 * lambda;
   }
 
   if (rmse) {
@@ -293,8 +273,7 @@ void dictionary_single(double *theta, d_mat_t P, double *g, int max_walk,
   free(P_unfold);
 }
 
-void dictionary(double *theta, d_mat_t P, double *g, int max_walk,
-                double lambda, double *dict, bool rmse) {
+void dictionary(double *theta, d_mat_t P, int max_walk, double *dict, bool rmse) {
 
   if (!rmse) {
     // adjust for BPR  metric
@@ -315,16 +294,10 @@ void dictionary(double *theta, d_mat_t P, double *g, int max_walk,
   grammian_matrix(DD, dict, max_walk, 2 * GRID_POINTS);
   double A[4 * GRID_POINTS * GRID_POINTS];
   grammian_matrix(A, PD, (int)P.num_rows, 2 * GRID_POINTS);
-  for (int i = 0; i < 4 * GRID_POINTS * GRID_POINTS; i++)
-    A[i] += lambda * DD[i];
 
   double g_D[2 * GRID_POINTS];
   for (int i = 0; i < 2 * GRID_POINTS; i++) {
     g_D[i] = 0.0;
-    for (int k = 0; k < max_walk; k++) {
-      g_D[i] += g[k] * dict[k * 2 * GRID_POINTS + i];
-    }
-    g_D[i] *= -2.0 * lambda;
   }
 
   if (rmse) {

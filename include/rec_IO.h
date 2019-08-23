@@ -17,7 +17,7 @@ data_t load_data(input_t, ctrl_t *);
 
 data_t load_CV_data(input_t, ctrl_t *);
 
-void store_general_trends(metric_t **, char *, int, int, bool, const char **);
+void store_general_trends(metric_t **, char *, int, int, const char **);
 
 void store_vals(char *, d_mat_t *, int, bool);
 

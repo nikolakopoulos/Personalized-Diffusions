@@ -175,8 +175,8 @@ data_t datacv_init(void) {
 
   data_t data;
 
-  data = (data_t){
-               .no_models = false,
+  data =
+      (data_t){.no_models = false,
                .cv_neg = i_mat_init(ITM_BUFF_SIZE, USR_BUFF_SIZE),
                .cv_pos = (sz_long_t *)malloc(USR_BUFF_SIZE * sizeof(sz_long_t)),
                .test_neg = NULL,
