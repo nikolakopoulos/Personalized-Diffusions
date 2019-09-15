@@ -12,6 +12,7 @@
 #include <getopt.h>
 #include <inttypes.h>
 #include <math.h>
+#include <omp.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -19,7 +20,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <omp.h>
 
 #include "csr_handling.h"
 #include "rec_IO.h"
@@ -29,6 +29,22 @@
 // easier handling of the item models
 #include <dirent.h>
 #include <stdarg.h>
+
+/* Arrange the N elements of ARRAY in random order.
+   Only effective if N is much smaller than RAND_MAX;
+   if this may not be the case, use a better random
+   number generator. */
+void shuffle(int *array, size_t n) {
+  if (n > 1) {
+    size_t i;
+    for (i = 0; i < n - 1; i++) {
+      size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+      int t = array[j];
+      array[j] = array[i];
+      array[i] = t;
+    }
+  }
+}
 
 char *concat_thanos(int count, ...) {
   va_list ap;
@@ -138,8 +154,9 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       "        ppr          -  PerDIF^par using only Personalized PageRank "
       "weights.",
       " ",
-	  "   -bpr_fit",
-      "      It fits the personalized diffusions using a BRP loss. Default is RMSE",
+      "   -bpr_fit",
+      "      It fits the personalized diffusions using a BRP loss. Default is "
+      "RMSE",
       " ",
       "   -usr_threads=int",
       "      Specifies the number of threads to be used for learning and "
@@ -150,8 +167,9 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       "   -help",
       "      Prints this message.",
       " ",
-	  " Example run: ./PERDIF -dataset=ml1m -usr_threads=40 -max_walk=6 -parametrize_as=dictionary",
-	  " ",
+      " Example run: ./PERDIF -dataset=ml1m -usr_threads=40 -max_walk=6 "
+      "-parametrize_as=dictionary",
+      " ",
       ""};
 
   int long_index = 0;
@@ -395,6 +413,7 @@ static void load_v(char *filename, sz_long_t **v_pos, i_mat_t *v_neg) {
   free(line);
   i_mat_resize(v_neg, count_rows - 1, count_cols);
 }
+
 
 // Reads feedback matrix in csr format from file and converts it to an array of
 // users Also returns the total number of users
