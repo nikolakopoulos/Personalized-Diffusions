@@ -1,4 +1,4 @@
-# Personalized-Diffusions
+# Personalized Diffusions for Recommendation
 
 Personalized Diffusions (PERDIF) is a random-walk-based top-N recommendation approach that combines the advantages of neighborhood- and graph-based collaborative filtering methods. It achieves state-of-the-art recommendation performance and has low computational requirements.
 
@@ -32,7 +32,6 @@ following BibTex entry:
 
 ##  Downloading PERDIF
 
-SLIM uses Git submodules to manage external dependencies. Hence, please specify the `--recursive` option while cloning the repo as follow:
 ```bash
 git clone https://github.com/nikolakopoulos/Personalized-Diffusions.git
 ```
@@ -73,6 +72,19 @@ PERDIF can be used by running the following two command-line programs:
 For example: 
 ```bash
 ./perdif_learn -dataset=yahoo -strategy=free -max_walk=3
+```
+will fit the personalized diffusions using the PerDIF FREE variant, with number of steps = 3. 
+The learned diffusion coefficients and the corresponding parameters mu will be stored in the data/out/yahoo folder.
+
+```bash
+./perdif_learn -dataset=ml1m -strategy=dictionary -max_walk=6
+```
+fits a PerDIF PAR model, with number of maximum number of steps = 6. 
+
+For more information regarding available choices run 
+
+```bash
+./perdif_learn -help
 ```
 
 ## Credits & Contact Information
