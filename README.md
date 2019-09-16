@@ -1,4 +1,4 @@
-# Personalized-Diffusions
+# Personalized Diffusions for Recommendation
 
 Personalized Diffusions (PERDIF) is a random-walk-based top-N recommendation approach that combines the advantages of neighborhood- and graph-based collaborative filtering methods. It achieves state-of-the-art recommendation performance and has low computational requirements.
 
@@ -32,7 +32,6 @@ following BibTex entry:
 
 ##  Downloading PERDIF
 
-SLIM uses Git submodules to manage external dependencies. Hence, please specify the `--recursive` option while cloning the repo as follow:
 ```bash
 git clone https://github.com/nikolakopoulos/Personalized-Diffusions.git
 ```
@@ -43,18 +42,18 @@ To build PERDIF you can follow the instructions below:
 
 ### Dependencies
 
-General dependencies for building slim are: gcc, cmake, build-essential, blas.
+General dependencies for building perdif are: gcc, cmake, build-essential, blas.
 In Ubuntu systems these can be obtained from the apt package manager (e.g., apt-get install cmake, etc) 
 
 ```bash
 sudo apt-get install build-essential
 sudo apt-get install cmake
-sudo apt-get install blas
+sudo apt-get install libblas-dev
 ```
 
-### Building and installing SLIM  
+### Building and installing PerDIF  
 
-In order to build SLIM, run:
+In order to build PerDIF, run:
 
 ```bash
 make
@@ -62,7 +61,7 @@ make
 
 ## Getting started
 
-Here are some examples to quickly try out PERDIF on a sample dataset that we provide.
+Here are some examples to quickly try out PERDIF on the sample datasets that we provide.
 
 
 ###  Command-line programs
@@ -70,11 +69,62 @@ PERDIF can be used by running the following two command-line programs:
 - `perdif_learn`: for learning personalized diffusions for each user, and
 - `perdif_mselect`: for selecting the base item model as well as the number of random walk steps K.
 
+For example: 
+```bash
+./perdif_learn -dataset=yahoo -strategy=free -max_walk=3
+```
+will fit the personalized diffusions using the PerDIF FREE variant, with number of steps = 3. 
+The learned diffusion coefficients and the corresponding parameters mu will be stored in the data/out/yahoo folder.
+
+```bash
+./perdif_learn -dataset=ml1m -strategy=dictionary -max_walk=6
+```
+fits a PerDIF PAR model, with number of maximum number of steps = 6. 
+
+For more information regarding available choices  
+
+```bash
+
+ Usage:
+   perdif_learn [options]
+ 
+ Options:
+ 
+   -dataset=string
+      Specifies the dataset to be used.
+        The dataset name is assumed to correspond to the name of the dataset folder in data/in and data/out directories.
+        The default value is ml1m
+ 
+   -max_walk=int
+      Specifies that length of the personalized item exploration walks.
+      The default value is 5
+ 
+   -strategy=string
+      Available options are:
+        single-best  -  Chooses for each user the Kth step that minimizes training error [default].
+        free         -  The PerDIF^Free model.
+        dictionary   -  The PerDIF^Par model.
+        hk           -  PerDIF^par using only Heat Kernel weights.
+        ppr          -  PerDIF^par using only Personalized PageRank weights.
+ 
+   -bpr_fit
+      It fits the personalized diffusions using a BRP loss. Default is RMSE
+ 
+   -usr_threads=int
+      Specifies the number of threads to be used for learning and evaluating the model.
+      The default value is maximum number of threads available on the machine.
+ 
+   -help
+      Prints this message.
+ 
+ Example run: ./perdif_learn -dataset=ml1m -max_walk=6 -strategy=dictionary
+```
+
 ## Credits & Contact Information
 
 This implementation of PERDIF was written by Dimitris Berberidis and Athanasios N. Nikolakopoulos.
 
-If you encounter any problems or have any suggestions, please contact Athanasios N. Nikolakopoulos at <a href="mailto:karypis@umn.edu">anikolak@umn.edu</a>.
+If you encounter any problems or have any suggestions, please contact Athanasios N. Nikolakopoulos at <a href="mailto:anikolak@umn.edu">anikolak@umn.edu</a>.
 
 
 ## Copyright & License Notice
