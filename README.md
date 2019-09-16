@@ -42,7 +42,7 @@ To build PERDIF you can follow the instructions below:
 
 ### Dependencies
 
-General dependencies for building slim are: gcc, cmake, build-essential, blas.
+General dependencies for building perdif are: gcc, cmake, build-essential, blas.
 In Ubuntu systems these can be obtained from the apt package manager (e.g., apt-get install cmake, etc) 
 
 ```bash
@@ -51,9 +51,9 @@ sudo apt-get install cmake
 sudo apt-get install libblas-dev
 ```
 
-### Building and installing SLIM  
+### Building and installing PerDIF  
 
-In order to build SLIM, run:
+In order to build PerDIF, run:
 
 ```bash
 make
