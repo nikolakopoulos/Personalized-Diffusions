@@ -3,6 +3,7 @@
 
 #include "rec_defs.h"
 
-void distribute_to_threads(csr_graph_t *, data_t , out_t, ctrl_t, void (*func)( struct pass2thread_t, int ) );
+void distribute_to_threads(csr_graph_t *, data_t, out_t, ctrl_t,
+                           void (*func)(struct pass2thread_t, int));
 
 #endif
