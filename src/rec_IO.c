@@ -130,7 +130,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
   static char helpstr[][512] = {
       " ",
       " Usage:",
-      "   PERDIF [options]",
+      "   perdif_learn [options]",
       " ",
       " Options:",
       " ",
@@ -161,7 +161,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       "   -help",
       "      Prints this message.",
       " ",
-      " Example run: ./PERDIF -dataset=ml1m -max_walk=6 -strategy=dictionary",
+      " Example run: ./perdif_learn -dataset=ml1m -max_walk=6 -strategy=dictionary",
       " ",
       ""};
 

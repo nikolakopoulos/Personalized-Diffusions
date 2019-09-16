@@ -1,4 +1,5 @@
 *.o
 *.mu
-*.trend
 *.theta
+*.trend
+*.results

@@ -81,10 +81,43 @@ The learned diffusion coefficients and the corresponding parameters mu will be s
 ```
 fits a PerDIF PAR model, with number of maximum number of steps = 6. 
 
-For more information regarding available choices run 
+For more information regarding available choices  
 
 ```bash
-./perdif_learn -help
+
+ Usage:
+   perdif_learn [options]
+ 
+ Options:
+ 
+   -dataset=string
+      Specifies the dataset to be used.
+        The dataset name is assumed to correspond to the name of the dataset folder in data/in and data/out directories.
+        The default value is ml1m
+ 
+   -max_walk=int
+      Specifies that length of the personalized item exploration walks.
+      The default value is 5
+ 
+   -strategy=string
+      Available options are:
+        single-best  -  Chooses for each user the Kth step that minimizes training error [default].
+        free         -  The PerDIF^Free model.
+        dictionary   -  The PerDIF^Par model.
+        hk           -  PerDIF^par using only Heat Kernel weights.
+        ppr          -  PerDIF^par using only Personalized PageRank weights.
+ 
+   -bpr_fit
+      It fits the personalized diffusions using a BRP loss. Default is RMSE
+ 
+   -usr_threads=int
+      Specifies the number of threads to be used for learning and evaluating the model.
+      The default value is maximum number of threads available on the machine.
+ 
+   -help
+      Prints this message.
+ 
+ Example run: ./perdif_learn -dataset=ml1m -max_walk=6 -strategy=dictionary
 ```
 
 ## Credits & Contact Information
