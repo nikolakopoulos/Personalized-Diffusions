@@ -2,7 +2,8 @@
 
 IDIR = include
 CC = gcc
-CFLAGS = -I$(IDIR) -O -lmkl_rt -O3 -lpthread -lm -Wall -g -ffast-math -fopenmp
+CFLAGS = -I$(IDIR) -O -lblas -O3 -lpthread -lm -Wall -g -ffast-math -fopenmp
+# CFLAGS = -I$(IDIR) -O -lmkl_rt -O3 -lpthread -lm -Wall -g -ffast-math -fopenmp
 
 SDIR = src
 ODIR = obj

@@ -80,7 +80,7 @@ static sz_long_t *csr_line_to_ind(char *, sz_med_t *, bool);
 static sz_med_t csr_read_line(char *, long double *, sz_long_t *);
 
 // List of diffusion parametrizations ( MUST be aligned with.. )
-static const char *dif_param_list[] = {"k-simplex", "single-best", "ppr", "hk",
+static const char *dif_param_list[] = {"free", "single-best", "ppr", "hk",
                                        "dictionary"};
 
 // List of target metrics ( MUST be aligned with.. )
@@ -95,7 +95,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
                          .input.rating_mat_full = DEFAULT_RATING_MAT_FULL,
                          .input.item_models_dir = DEFAULT_ITEM_MODELS_DIR,
                          .input.CV_item_models_dir = DEFAULT_CV_ITEM_MODELS_DIR,
-                         .ctrl.usr_threads = omp_get_max_threads(),
+                         .ctrl.usr_threads = omp_get_max_threads()/2,
                          .ctrl.model_threads = DEFAULT_MODEL_THREADS,
                          .ctrl.num_threads = DEFAULT_NUM_THREADS,
                          .output.outdir_pred = DEFAULT_OUTDIR_PRED,
@@ -117,7 +117,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
   static struct option long_options[] = {
       {"max_walk", required_argument, 0, 'd'},
       {"usr_threads", required_argument, 0, 'e'},
-      {"parametrize_as", required_argument, 0, 'j'},
+      {"strategy", required_argument, 0, 'j'},
       {"bpr_fit", no_argument, 0, 'm'},
       {"target_metric", required_argument, 0, 'o'},
       {"itm_trsp", no_argument, 0, 'y'},
@@ -136,39 +136,32 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       " ",
       "   -dataset=string",
       "      Specifies the dataset to be used.",
-      "        The dataset name is assumed to correspond to the name of the "
-      "dataset folder in data/in and data/out directories.",
+      "        The dataset name is assumed to correspond to the name of the dataset folder in data/in and data/out directories.",
       "        The default value is ml1m",
       " ",
       "   -max_walk=int",
       "      Specifies that length of the personalized item exploration walks.",
       "      The default value is 5",
       " ",
-      "   -parametrize_as=string",
-      "      Available options are:",
-      "        k-simplex    -  The PerDIF^Free model [default].",
+      "   -strategy=string",
+      "      Available options are:",      
+      "        single-best  -  Chooses for each user the Kth step that minimizes training error [default].",
+      "        free         -  The PerDIF^Free model.",
       "        dictionary   -  The PerDIF^Par model.",
-      "        single-best  -  Chooses for each user the Kth step that "
-      "minimizes train error.",
       "        hk           -  PerDIF^par using only Heat Kernel weights.",
-      "        ppr          -  PerDIF^par using only Personalized PageRank "
-      "weights.",
+      "        ppr          -  PerDIF^par using only Personalized PageRank weights.",
       " ",
       "   -bpr_fit",
-      "      It fits the personalized diffusions using a BRP loss. Default is "
-      "RMSE",
+      "      It fits the personalized diffusions using a BRP loss. Default is RMSE",
       " ",
       "   -usr_threads=int",
-      "      Specifies the number of threads to be used for learning and "
-      "evaluating the model.",
-      "      The default value is maximum number of threads available on the "
-      "machine.",
+      "      Specifies the number of threads to be used for learning and evaluating the model.",
+      "      The default value is maximum number of threads available on the machine.",
       " ",
       "   -help",
       "      Prints this message.",
       " ",
-      " Example run: ./PERDIF -dataset=ml1m -usr_threads=40 -max_walk=6 "
-      "-parametrize_as=dictionary",
+      " Example run: ./PERDIF -dataset=ml1m -max_walk=6 -strategy=dictionary",
       " ",
       ""};
 

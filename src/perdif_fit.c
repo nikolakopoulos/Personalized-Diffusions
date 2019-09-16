@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-// #include <cblas.h>
-#include <mkl.h>
+#include <cblas.h>
+// #include <mkl.h>
 
 #include "perdif_fit.h"
 #include "rec_defs.h"
