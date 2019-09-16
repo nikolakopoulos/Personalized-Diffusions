@@ -49,7 +49,7 @@ In Ubuntu systems these can be obtained from the apt package manager (e.g., apt-
 ```bash
 sudo apt-get install build-essential
 sudo apt-get install cmake
-sudo apt-get install blas
+sudo apt-get install libblas-dev
 ```
 
 ### Building and installing SLIM  
@@ -62,7 +62,7 @@ make
 
 ## Getting started
 
-Here are some examples to quickly try out PERDIF on a sample dataset that we provide.
+Here are some examples to quickly try out PERDIF on the sample datasets that we provide.
 
 
 ###  Command-line programs
@@ -70,11 +70,16 @@ PERDIF can be used by running the following two command-line programs:
 - `perdif_learn`: for learning personalized diffusions for each user, and
 - `perdif_mselect`: for selecting the base item model as well as the number of random walk steps K.
 
+For example: 
+```bash
+./perdif_learn -dataset=yahoo -strategy=free -max_walk=3
+```
+
 ## Credits & Contact Information
 
 This implementation of PERDIF was written by Dimitris Berberidis and Athanasios N. Nikolakopoulos.
 
-If you encounter any problems or have any suggestions, please contact Athanasios N. Nikolakopoulos at <a href="mailto:karypis@umn.edu">anikolak@umn.edu</a>.
+If you encounter any problems or have any suggestions, please contact Athanasios N. Nikolakopoulos at <a href="mailto:anikolak@umn.edu">anikolak@umn.edu</a>.
 
 
 ## Copyright & License Notice
