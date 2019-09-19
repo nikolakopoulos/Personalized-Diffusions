@@ -2,6 +2,10 @@
 
 Personalized Diffusions (PERDIF) is a random-walk-based top-N recommendation approach that combines the advantages of neighborhood- and graph-based collaborative filtering methods. It achieves state-of-the-art recommendation performance and has low computational requirements.
 
+<p align="center">
+<img width="400px" src="https://nikolako.net/img/perdif.png"/>
+</p>
+
 This package provides a C-based multi-threaded implementation of PERDIF that consists of a set of command-line programs. 
 
 
