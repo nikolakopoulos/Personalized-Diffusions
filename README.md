@@ -119,7 +119,7 @@ For more information regarding available choices
    -help
       Prints this message.
  
- Example run: ./perdif_learn -dataset=ml1m -max_walk=6 -strategy=dictionary
+ Example run: ./perdif_learn -dataset=yahoo -max_walk=3 -strategy=dictionary
 ```
 
 ## Credits & Contact Information
