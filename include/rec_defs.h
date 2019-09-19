@@ -12,7 +12,7 @@
 // Input buffer sizes
 
 #define USR_BUFF_SIZE 500000
-#define ITM_BUFF_SIZE 400000
+#define ITM_BUFF_SIZE 40000
 
 // Default command line arguments
 

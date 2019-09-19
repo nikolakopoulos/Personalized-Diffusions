@@ -42,14 +42,16 @@ To build PERDIF you can follow the instructions below:
 
 ### Dependencies
 
-General dependencies for building perdif are: gcc, cmake, build-essential, blas.
-In Ubuntu systems these can be obtained from the apt package manager (e.g., apt-get install cmake, etc) 
+General dependencies for building perdif are: gcc, cmake, build-essential, mkl (for blas routines).
+For Ubuntu machines on which you have `sudo` privileges, we provided the `depmkl.sh` script that automates the process of obtaining and installing the dependencies, which can be used as follows:
 
 ```bash
-sudo apt-get install build-essential
-sudo apt-get install cmake
-sudo apt-get install libblas-dev
+bash depmkl.sh
+source ~/.bashrc 
 ```
+
+For machines on which you do not have `sudo` privileges, you should download the MKL tarball from [Intel's website](https://software.intel.com/en-us/mkl) and then install it locally using the `install.sh` script they provide. After installing it you should add `your-path-to-intel/intel/mkl/bin/mklvars.sh intel64`in your bashrc and run `source ~/.bashrc`.
+
 
 ### Building and installing PerDIF  
 
