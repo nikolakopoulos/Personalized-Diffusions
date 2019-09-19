@@ -83,13 +83,19 @@ will fit the personalized diffusions using the PerDIF FREE variant, with number 
 The learned diffusion coefficients and the corresponding parameters mu will be stored in the data/out/yahoo folder.
 
 ```bash
-./perdif_learn -dataset=ml1m -strategy=dictionary -max_walk=6
+./perdif_learn -dataset=yahoo -strategy=dictionary -max_walk=3
 ```
-fits a PerDIF PAR model, with number of maximum number of steps = 6. 
-
-For more information regarding available choices  
+fits a PerDIF PAR model, with number of maximum number of steps = 3. 
 
 ```bash
+./perdif_mselect -dataset=yahoo -max_walk=10
+```
+performs random walks on every item model listed in the folder in/yahoo/CV_item_models (item model should contain the string "model" in their name), and returns the model and the number of steps that yield the best recommendation accuracy in terms of HR, ARHR and NDCG. 
+
+For more information regarding available choices call the respective command line programs with the "-help" option.  For example 
+
+```bash
+ >> perdif_learn -help
 
  Usage:
    perdif_learn [options]
@@ -99,11 +105,10 @@ For more information regarding available choices
    -dataset=string
       Specifies the dataset to be used.
         The dataset name is assumed to correspond to the name of the dataset folder in data/in and data/out directories.
-        The default value is ml1m
  
    -max_walk=int
       Specifies that length of the personalized item exploration walks.
-      The default value is 5
+      The default value is 6
  
    -strategy=string
       Available options are:
