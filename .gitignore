@@ -3,3 +3,5 @@
 *.theta
 *.trend
 *.results
+perdif_learn
+perdif_mselect

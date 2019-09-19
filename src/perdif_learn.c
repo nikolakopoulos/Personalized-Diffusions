@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <mkl.h>
 
 #include "perdif_predict.h"
 #include "perdif_train.h"
@@ -31,7 +32,7 @@ int main(int argc, char **argv) {
   printf("\n---------------------------------------------------------------\n");
   printf("Personalized Diffusions, version %s\n", PERDIF_VERSION);
   printf("---------------------------------------------------------------\n");
-
+  
   // Parse command-line arguments
   cmd_args_t args;
   parse_commandline_args(argc, argv, &args);
@@ -47,7 +48,7 @@ int main(int argc, char **argv) {
   // Train parameters
   struct timespec start, finish;
   double elapsed;
-
+  mkl_set_threading_layer(MKL_THREADING_GNU); 
   clock_gettime(CLOCK_MONOTONIC, &start);
   perdif_train(data, output, args.ctrl, args.output);
   clock_gettime(CLOCK_MONOTONIC, &finish);

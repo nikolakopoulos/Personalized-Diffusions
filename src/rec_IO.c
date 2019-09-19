@@ -95,8 +95,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
                          .input.rating_mat_full = DEFAULT_RATING_MAT_FULL,
                          .input.item_models_dir = DEFAULT_ITEM_MODELS_DIR,
                          .input.CV_item_models_dir = DEFAULT_CV_ITEM_MODELS_DIR,
-                        //  .ctrl.usr_threads = omp_get_max_threads()/2,
-                         .ctrl.usr_threads = 20,
+                         .ctrl.usr_threads = omp_get_max_threads()/2,
                          .ctrl.model_threads = DEFAULT_MODEL_THREADS,
                          .ctrl.num_threads = DEFAULT_NUM_THREADS,
                          .output.outdir_pred = DEFAULT_OUTDIR_PRED,
@@ -138,7 +137,6 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       "   -dataset=string",
       "      Specifies the dataset to be used.",
       "        The dataset name is assumed to correspond to the name of the dataset folder in data/in and data/out directories.",
-      "        The default value is ml1m",
       " ",
       "   -max_walk=int",
       "      Specifies that length of the personalized item exploration walks.",
@@ -157,7 +155,7 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       " ",
       "   -usr_threads=int",
       "      Specifies the number of threads to be used for learning and evaluating the model.",
-      "      The default value is maximum number of threads available on the machine.",
+      "      The default value is chosen based on heuristics that depend on the fitting strategy.",
       " ",
       "   -help",
       "      Prints this message.",
@@ -209,6 +207,149 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       break;
     case 'm':
       args->ctrl.rmse_fit = false;
+      break;
+    case 'x':
+      args->ctrl.save_vals = true;
+      break;
+    case 'o':
+      for (sz_short_t i = 0; i < NUM_METRICS; i++) {
+        if (!strcmp(optarg, metrics_list[i]))
+          args->ctrl.which_target_metric = i;
+        metric_found = true;
+      }
+      if (!metric_found)
+        printf("ERROR: Metric type not recognized\n");
+      break;
+    case 'l':
+      args->ctrl.num_threads = atoi(optarg);
+      if (args->ctrl.num_threads < 1) {
+        printf("ERROR: Number of threads must be >=1\n");
+        exit(EXIT_FAILURE);
+      }
+      break;
+    case 'q':
+      // Input
+      args->input.rating_mat =
+          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/R.csr");
+      args->input.rating_mat_full =
+          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/R_full.csr");
+      args->input.item_models_dir =
+          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/selected_item_models");
+      args->input.CV_item_models_dir =
+          concat_thanos(3, DEFAULT_IN_DIR, optarg, "/CV_item_models");
+      // Val
+      args->input.val_mat = concat_thanos(3, DEFAULT_IN_DIR, optarg, "/CV.csr");
+      // Test
+      args->input.test_mat =
+          concat_thanos(3, DEFAULT_OUT_DIR, optarg, "/TestSet.csr");
+      // Output
+      args->output.outdir_pred =
+          concat_thanos(3, DEFAULT_OUT_DIR, optarg, "/predictions");
+      args->output.outdir_theta =
+          concat_thanos(3, DEFAULT_OUT_DIR, optarg, "/model_parameters");
+      args->output.outdir_val =
+          concat_thanos(3, DEFAULT_OUT_DIR, optarg, "/val_workspace");
+      break;
+    case 'h':
+      for (int i = 0; strlen(helpstr[i]) > 0; i++)
+        printf("%s\n", helpstr[i]);
+      exit(0);
+    default:
+      exit(EXIT_FAILURE);
+    }
+  }
+}
+
+
+// Parsing command line arguments with getopt_long_only
+void parse_commandline_args_mselect(int argc, char **argv, cmd_args_t *args) {
+
+  // set default arguments
+  (*args) = (cmd_args_t){.ctrl.max_walk = DEFAULT_MAX_WALK,
+                         .input.rating_mat = DEFAULT_RATING_MAT,
+                         .input.rating_mat_full = DEFAULT_RATING_MAT_FULL,
+                         .input.item_models_dir = DEFAULT_ITEM_MODELS_DIR,
+                         .input.CV_item_models_dir = DEFAULT_CV_ITEM_MODELS_DIR,
+                         .ctrl.usr_threads = omp_get_max_threads(),
+                         .ctrl.model_threads = DEFAULT_MODEL_THREADS,
+                         .ctrl.num_threads = DEFAULT_NUM_THREADS,
+                         .output.outdir_pred = DEFAULT_OUTDIR_PRED,
+                         .output.outdir_theta = DEFAULT_OUTDIR_THETA,
+                         .output.outdir_val = DEFAULT_OUTDIR_VAL,
+                         .ctrl.which_dif_param = DEFAULT_DIF_PARAM,
+                         .ctrl.bipartite = DEFAULT_BIPARTITE,
+                         .ctrl.rmse_fit = DEFAULT_RMSE_FIT,
+                         .ctrl.itm_trsp = DEFAULT_ITM_TRSP,
+                         .ctrl.save_vals = DEFAULT_SAVE_VALS,
+                         .ctrl.best_step = DEFAULT_BEST_STEP,
+                         .input.val_mat = DEFAULT_VAL_MAT,
+                         .input.test_mat = DEFAULT_TEST_MAT,
+                         .ctrl.which_target_metric = DEFAULT_TARGET_METRIC};
+
+  int opt = 0;
+  // Specifying the expected options
+  // The two options l and b expect numbers as argument
+  static struct option long_options[] = {
+      {"max_walk", required_argument, 0, 'd'},
+      {"usr_threads", required_argument, 0, 'e'},
+      {"target_metric", required_argument, 0, 'o'},
+      {"itm_trsp", no_argument, 0, 'y'},
+      {"save_vals", no_argument, 0, 'x'},
+      {"num_threads", required_argument, 0, 'l'},
+      {"dataset", required_argument, 0, 'q'},
+      {"help", no_argument, 0, 'h'},
+      {0, 0, 0, 0}};
+
+  static char helpstr[][512] = {
+      " ",
+      " Usage:",
+      "   perdif_mselect [options]",
+      " ",
+      " Options:",
+      " ",
+      "   -dataset=string",
+      "      Specifies the dataset to be used.",
+      "        The dataset name is assumed to correspond to the name of the dataset folder in data/in and data/out directories.",
+      " ",
+      "   -max_walk=int",
+      "      Specifies that length of the personalized item exploration walks.",
+      "      The default value is 10",
+      " ",
+      "   -usr_threads=int",
+      "      Specifies the number of threads to be used for learning and evaluating the model.",
+      "      The default value is maximum number of threads available on the machine.",
+      " ",
+      "   -help",
+      "      Prints this message.",
+      " ",
+      " Example run: ./perdif_mselect -dataset=yahoo -max_walk=10",
+      " ",
+      ""};
+
+  int long_index = 0;
+  bool metric_found = false;
+  // omp_get_max_threads();
+  while ((opt = getopt_long_only(argc, argv, "", long_options, &long_index)) !=
+         -1) {
+    switch (opt) {
+    case 'd':
+      args->ctrl.max_walk =
+          atoi(optarg) + 1; // the +1 is for using the max_walk as a barrier.
+      // args->ctrl.max_walk = atoi(optarg);
+      if (args->ctrl.max_walk < 1) {
+        printf("ERROR: Max length of walks must be >=1\n");
+        exit(EXIT_FAILURE);
+      }
+      break;
+    case 'e':
+      args->ctrl.usr_threads = atoi(optarg);
+      if (args->ctrl.usr_threads < 1) {
+        printf("ERROR: Number of user threads must be >=1\n");
+        exit(EXIT_FAILURE);
+      }
+      break;
+    case 'y':
+      args->ctrl.itm_trsp = false;
       break;
     case 'x':
       args->ctrl.save_vals = true;

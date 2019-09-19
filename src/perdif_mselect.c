@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
   // Parse command-line arguments
   cmd_args_t args;
-  parse_commandline_args(argc, argv, &args);
+  parse_commandline_args_mselect(argc, argv, &args);
 
   // Load data
   data_t data = load_CV_data(args.input, &args.ctrl);
@@ -47,8 +47,17 @@ int main(int argc, char **argv) {
   // Workspace to store thetas and predictions
   out_t output = output_init(data, args.ctrl);
 
-  // Train parameters
+  struct timespec start, finish;
+  double elapsed;
+
+  clock_gettime(CLOCK_MONOTONIC, &start);
   perdif_mselect(data, output, args.ctrl, args.output);
+  clock_gettime(CLOCK_MONOTONIC, &finish);
+
+  elapsed = (finish.tv_sec - start.tv_sec);
+  elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+
+  printf("Time to run the walks: %f sec\n", elapsed);
 
   // Free
   data_free(data);

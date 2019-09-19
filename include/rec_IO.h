@@ -5,6 +5,8 @@
 
 void parse_commandline_args(int, char **, cmd_args_t *);
 
+void parse_commandline_args_mselect(int, char **, cmd_args_t *);
+
 user_t *read_rating_matrix_csr(sz_long_t *, char *);
 
 csr_graph_t read_item_graph_csr(char *, char *);

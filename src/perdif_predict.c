@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <omp.h>
 
 #include "csr_handling.h"
 #include "perdif_mthreads.h"
@@ -41,6 +42,9 @@ void perdif_predict(data_t data, out_t out, ctrl_t ctrl, output_t outfiles) {
     graphs[i] = generate_rec_graph(data.users_full, data.item_models[i],
                                    data.num_users, ctrl.bipartite);
   }
+
+  // fully parallelizable between users 
+  ctrl.usr_threads = omp_get_max_threads();
 
   // Testing Top-N Recommendation Performance
   green();
