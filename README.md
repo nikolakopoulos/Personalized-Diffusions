@@ -1,8 +1,8 @@
+# Personalized Diffusions for Recommendation
+
 <p align="center">
 <img width="400px" src="https://nikolako.net/img/perdif.svg"/>
 </p>
-
-# Personalized Diffusions for Recommendation
 
 Personalized Diffusions (PERDIF) is a random-walk-based top-N recommendation approach that combines the advantages of neighborhood- and graph-based collaborative filtering methods. It achieves state-of-the-art recommendation performance and has low computational requirements.
 
