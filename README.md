@@ -46,7 +46,7 @@ To build PERDIF you can follow the instructions below:
 
 ### Dependencies
 
-General dependencies for building perdif are: gcc, cmake, build-essential, mkl (for blas routines).
+General dependencies for building perdif are: gcc, cmake, build-essential, MKL (for blas routines).
 For Ubuntu machines on which you have `sudo` privileges, we provided the `depmkl.sh` script that automates the process of obtaining and installing the dependencies, which can be used as follows:
 
 ```bash
@@ -90,7 +90,7 @@ fits a PerDIF PAR model, with number of maximum number of steps = 3.
 ```bash
 ./perdif_mselect -dataset=yahoo -max_walk=10
 ```
-performs random walks on every item model listed in the folder in/yahoo/CV_item_models (item model should contain the string "model" in their name), and returns the model and the number of steps that yield the best recommendation accuracy in terms of HR, ARHR and NDCG. 
+performs random walks on every item model listed in the folder in/yahoo/CV_item_models (item models should contain the string "model" in their name), and reports the model and the number of steps that yield the best recommendation accuracy in terms of HR, ARHR and NDCG. 
 
 For more information regarding available choices call the respective command line programs with the "-help" option.  For example 
 
