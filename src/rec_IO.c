@@ -95,7 +95,8 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
                          .input.rating_mat_full = DEFAULT_RATING_MAT_FULL,
                          .input.item_models_dir = DEFAULT_ITEM_MODELS_DIR,
                          .input.CV_item_models_dir = DEFAULT_CV_ITEM_MODELS_DIR,
-                         .ctrl.usr_threads = omp_get_max_threads()/2,
+                        //  .ctrl.usr_threads = omp_get_max_threads()/2,
+                         .ctrl.usr_threads = 20,
                          .ctrl.model_threads = DEFAULT_MODEL_THREADS,
                          .ctrl.num_threads = DEFAULT_NUM_THREADS,
                          .output.outdir_pred = DEFAULT_OUTDIR_PRED,
@@ -161,13 +162,13 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
       "   -help",
       "      Prints this message.",
       " ",
-      " Example run: ./perdif_learn -dataset=ml1m -max_walk=6 -strategy=dictionary",
+      " Example run: ./perdif_learn -dataset=yahoo -max_walk=3 -strategy=dictionary",
       " ",
       ""};
 
   int long_index = 0;
   bool method_found = false, metric_found = false;
-
+  // omp_get_max_threads();
   while ((opt = getopt_long_only(argc, argv, "", long_options, &long_index)) !=
          -1) {
     switch (opt) {
@@ -192,6 +193,10 @@ void parse_commandline_args(int argc, char **argv, cmd_args_t *args) {
         if (!strcmp(optarg, dif_param_list[i])) {
           args->ctrl.which_dif_param = i;
           method_found = true;
+          if(i>1){ // less usr_threads are usually better here because more time is being spend in the optimization problem
+            args->ctrl.usr_threads = 1;
+            printf("Setting usr_threads to 1\n");
+          }
         }
       }
       if (!method_found) {

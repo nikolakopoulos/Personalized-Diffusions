@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <cblas.h>
-// #include <mkl.h>
+//#include <cblas.h>
+#include <mkl.h>
 
 #include "perdif_fit.h"
 #include "rec_defs.h"
@@ -30,8 +30,7 @@
 static double cost_func(double *, double *, double *, sz_med_t);
 #endif
 
-static void matrix_matrix_product(double *C, double *A, double *B, int, int,
-                                  int);
+static void matrix_matrix_product(double *C, double *A, double *B, int, int,  int);
 static double *unfold_matrix(d_mat_t);
 static void constr_QP_with_PG(double *, double *, double *, sz_med_t);
 static void grammian_matrix(double *, double *, int, int);
