@@ -16,9 +16,9 @@
 
 // Default command line arguments
 
-#define DEFAULT_MAX_WALK 10
+#define DEFAULT_MAX_WALK 6
 
-#define DEFAULT_DATASET "ml1m"
+#define DEFAULT_DATASET "yahoo"
 
 #define DEFAULT_IN_DIR "./data/in/"
 
